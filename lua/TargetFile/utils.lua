@@ -17,7 +17,7 @@ function U.file_ext(flnm)
 end
 
 function U.file_name(flnm)
-  return flnm:sub(string.find(flnm, "/[^/]*$") + 1, #flnm - #file_ext(flnm))
+  return flnm:sub(string.find(flnm, "/[^/]*$") + 1, #flnm - #U.file_ext(flnm))
 end
 
 return U
