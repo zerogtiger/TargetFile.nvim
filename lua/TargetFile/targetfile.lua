@@ -64,7 +64,7 @@ end
 ---TargetFile:sets the path to a custom file path
 ---@return TargetFile
 function TargetFile:custom_path()
-  self:file_path_reset(vim.fn.input("Absolute target file path > "))
+  self:path_set(vim.fn.input("Absolute target file path > ", self.file_path))
 
   return self
 end
@@ -75,14 +75,14 @@ end
 function TargetFile:expand_to_cmd(unexpanded_cmd)
   local expanded_cmd = string.gsub(unexpanded_cmd, "%%fp", self.file_path)
   expanded_cmd = string.gsub(expanded_cmd, "%%fen",
-    self.file_path:sub(0, #(self.file_path) - #file_ext(self.file_path)))
+    self.file_path:sub(0, #(self.file_path) - #U.file_ext(self.file_path)))
   expanded_cmd = string.gsub(expanded_cmd, "%%fben",
-    self.file_path:sub(0, #(self.file_path) - #file_ext(self.file_path) - #file_name(self.file_path)) ..
-    '.build/' .. file_name(self.file_path))
+    self.file_path:sub(0, #(self.file_path) - #U.file_ext(self.file_path) - #U.file_name(self.file_path)) ..
+    '.build/' .. U.file_name(self.file_path))
   expanded_cmd = string.gsub(expanded_cmd, "%%fdb",
-    self.file_path:sub(0, #(self.file_path) - #file_ext(self.file_path) - #file_name(self.file_path)) ..
+    self.file_path:sub(0, #(self.file_path) - #U.file_ext(self.file_path) - #U.file_name(self.file_path)) ..
     '.build/')
-  expanded_cmd = string.gsub(expanded_cmd, "%%fn", file_name(self.file_path))
+  expanded_cmd = string.gsub(expanded_cmd, "%%fn", U.file_name(self.file_path))
 
   return expanded_cmd
 end
@@ -151,7 +151,7 @@ end
 ---TargetFile:Sets a custom window size from uesr
 ---@return TargetFile
 function TargetFile:window_size_custom()
-  self.config.window_size = tonumber(vim.fn.input("Window size > "))
+  self.config.window_size = tonumber(vim.fn.input("Window size > ", self.config.window_size))
   return self
 end
 
@@ -165,8 +165,15 @@ end
 ---TargetFile:resets default window location
 ---@return TargetFile
 function TargetFile:window_location_reset()
+  self:set_window_location(2)
+  return self
+end
+
+---TargetFile:sets the window location to the provided location
+---@return TargetFile
+function TargetFile:set_window_location(new_location)
   local old_location = self.config.window_location
-  self.config.window_location = 2
+  self.config.window_location = new_location 
   if old_location % 2 ~= self.config.window_location % 2 then
     self:window_size_reset()
   end
@@ -176,8 +183,7 @@ end
 ---TargetFile:sets a custom window location from user
 ---@return TargetFile
 function TargetFile:window_location_custom()
-  window_location_reset(vim.fn.input("\n1: North\n2: East\n3: South\n4: West\n5: Float\nWindow location > "))
-  vim.cmd(window_preview_cmd())
+  self:set_window_location(tonumber(vim.fn.input("\n1: North\n2: East\n3: South\n4: West\n5: Float\nWindow location > ", self.config.window_location)))
   return self
 end
 
@@ -535,3 +541,4 @@ end
 -- end
 
 return TargetFile
+

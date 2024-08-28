@@ -8,7 +8,7 @@ local U = {}
 U.defaults = {
   window_size = 60,
   window_location = 2,
-  supported_language = {
+  supported_languages = {
     ['.cpp'] = {
       name = 'C++',
       ext = '.cpp',
@@ -68,3 +68,4 @@ function U.file_name(flnm)
 end
 
 return U
+

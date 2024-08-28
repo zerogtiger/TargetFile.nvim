@@ -7,7 +7,7 @@ local tf = TargetFile:new()
 ---(Optional) Configure the default terminal
 ---@param cfg Config
 function M.setup(cfg)
-    tf:setup(cfg)
+  tf:setup(cfg)
 end
 
 function M.print_path()
@@ -30,6 +30,7 @@ end
 
 function M.reset_window()
   tf:window_reset()
+  tf:window_preview()
 end
 
 function M.print_window_size()
@@ -38,10 +39,12 @@ end
 
 function M.reset_window_size()
   tf:window_size_reset()
+  tf:window_preview()
 end
 
 function M.custom_window_size()
   tf:window_size_custom()
+  tf:window_preview()
 end
 
 function M.print_window_location()
@@ -50,10 +53,12 @@ end
 
 function M.reset_window_location()
   tf:window_location_reset()
+  tf:window_preview()
 end
 
 function M.custom_window_location()
   tf:window_location_custom()
+  tf:window_preview()
 end
 
 function M.execute()
@@ -71,6 +76,7 @@ end
 function M.debug()
   tf:debug()
 end
+
 -- User commands
 vim.api.nvim_create_user_command("TFPath", function()
   M.print_path()
@@ -117,7 +123,7 @@ vim.api.nvim_create_user_command("TFWindowSize", function()
 end, {})
 
 -- Resets default window size
-vim.api.nvim_create_user_command("TFresetWindowSize", function()
+vim.api.nvim_create_user_command("TFResetWindowSize", function()
   M.reset_window_size()
 end, {})
 
@@ -142,28 +148,27 @@ vim.api.nvim_create_user_command("TFCustomWindowLocation", function()
 end, {})
 
 -- Keymappings
-vim.keymap.set('n', tf.config.leader .. 'ps', vim.cmd.TargetFilePath, { desc = 'target file [P]ath [S]how' })
-vim.keymap.set('n', targetfile_leader .. 'pr', vim.cmd.TargetFilePathReset, { desc = 'target file [P]ath [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "pc", vim.cmd.TargetFilePathCustom, { desc = 'target file [P]ath [C]ustom' })
-vim.keymap.set('n', targetfile_leader .. "e", vim.cmd.TargetFileExecute, { desc = '[E]xecute target file' })
-vim.keymap.set('n', targetfile_leader .. "c", vim.cmd.TargetFileCompile, { desc = '[C]ompile target file' })
-vim.keymap.set('n', targetfile_leader .. "<space>", vim.cmd.TargetFileCompileExecute,
-  { desc = 'compiles & executes target file' })
-vim.keymap.set('n', targetfile_leader .. "d", vim.cmd.TargetFileDebug, { desc = '[D]ebugs target file' })
-vim.keymap.set('n', targetfile_leader .. "ws", vim.cmd.TargetFileWindow, { desc = 'target file [W]indow preview [S]how' })
-vim.keymap.set('n', targetfile_leader .. "wr", vim.cmd.TargetFileWindowReset, { desc = 'target file [W]indow [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "ss", vim.cmd.TargetFileWindowSize,
-  { desc = 'target file window [S]ize [S]how' })
-vim.keymap.set('n', targetfile_leader .. "sr", vim.cmd.TargetFileWindowSizeReset,
-  { desc = 'target file window [S]ize [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "sc", vim.cmd.TargetFileWindowSizeCustom,
-  { desc = 'target file window [S]ize [C]ustom' })
-vim.keymap.set('n', targetfile_leader .. "ls", vim.cmd.TargetFileWindowLocation,
-  { desc = 'target file window [L]ocation [S]how' })
-vim.keymap.set('n', targetfile_leader .. "lr", vim.cmd.TargetFileWindowLocationReset,
-  { desc = 'target file window [L]ocation [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "lc", vim.cmd.TargetFileWindowLocationCustom,
-  { desc = 'target file window [L]ocation [C]ustom' })
+vim.keymap.set('n', tf.config.leader .. 'sp', vim.cmd.TFPath, { desc = 'TargetFile [C]how [P]ath' })
+vim.keymap.set('n', tf.config.leader .. 'rp', vim.cmd.TFResetPath, { desc = 'TargetFile [R]est [P]ath' })
+vim.keymap.set('n', tf.config.leader .. "mp", vim.cmd.TFCustomPath, { desc = 'TargetFile set [M]odify [P]ath' })
+vim.keymap.set('n', tf.config.leader .. "e", vim.cmd.TFExecute, { desc = 'TargetFile [E]xecute' })
+vim.keymap.set('n', tf.config.leader .. "c", vim.cmd.TFCompile, { desc = 'TargetFile [[C]ompile' })
+vim.keymap.set('n', tf.config.leader .. "<space>", vim.cmd.TFCompileExecute,
+  { desc = 'TargetFile compile then execute' })
+vim.keymap.set('n', tf.config.leader .. "d", vim.cmd.TFDebug, { desc = 'TargetFile [D]ebugs' })
+vim.keymap.set('n', tf.config.leader .. "sw", vim.cmd.TFPreviewWindow, { desc = 'TargetFile [S]how [W]indow preview ' })
+vim.keymap.set('n', tf.config.leader .. "rw", vim.cmd.TFResetWindow, { desc = 'TargetFile [R]eset [W]indow' })
+vim.keymap.set('n', tf.config.leader .. "ss", vim.cmd.TFWindowSize, { desc = 'TargetFile [S]how window [S]ize' })
+vim.keymap.set('n', tf.config.leader .. "rs", vim.cmd.TFResetWindowSize,
+  { desc = 'TargetFile [R]eset window [S]ize' })
+vim.keymap.set('n', tf.config.leader .. "ms", vim.cmd.TFCustomWindowSize,
+  { desc = 'target file [M]odify window [S]ize' })
+vim.keymap.set('n', tf.config.leader .. "sl", vim.cmd.TFWindowLocation,
+  { desc = 'target file [S]how window [L]ocation' })
+vim.keymap.set('n', tf.config.leader .. "rl", vim.cmd.TFResetWindowLocation,
+  { desc = 'target file [R]eset window [L]ocation' })
+vim.keymap.set('n', tf.config.leader .. "ml", vim.cmd.TFCustomWindowLocation,
+  { desc = 'target file [M]odify window [L]ocation' })
 
 -- ---Run a arbitrary command inside the default terminal
 -- ---@param cmd Command
@@ -220,3 +225,4 @@ vim.keymap.set('n', targetfile_leader .. "lc", vim.cmd.TargetFileWindowLocationC
 -- end
 
 return M
+
