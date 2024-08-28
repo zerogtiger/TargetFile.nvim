@@ -5,12 +5,14 @@ local fterm = require('FTerm')
 ---@field file_path string
 ---@field config Config
 
-local TargetFile = {}
 local locations = { 'North', 'East', 'South', 'West', 'Float' }
 local location_cmd = { 'K', 'L', 'J', 'H', '' }
 local location_split_cmd = { 'v', '', 'v', '', '' }
 local resize_cmd = { '', 'vertical', '', 'vertical', '' }
 
+local TargetFile = {}
+
+---TargetFile:new creates a new terminal instance
 function TargetFile:new()
   return setmetatable({
     file_path = vim.fn.expand('%:p'),
@@ -18,8 +20,9 @@ function TargetFile:new()
   }, { __index = self })
 end
 
+---TargetFile:setup overrides the terminal windows configuration ie. dimensions
 ---@param cfg Config
----@return TargetFile
+---@return TargetFile|nil
 function TargetFile:setup(cfg)
   if not cfg then
     return vim.notify('TargetFile: setup() is optional. Please remove it!', vim.log.levels.WARN)
@@ -30,6 +33,7 @@ function TargetFile:setup(cfg)
   return self
 end
 
+---TargetFile:sets the path of the target file
 ---@param file_path string
 ---@return TargetFile
 function TargetFile:path_set(file_path)
@@ -37,11 +41,11 @@ function TargetFile:path_set(file_path)
     file_path = vim.fn.expand('%:p')
   end
   self.file_path = file_path
-  print(file_path)
 
   return self
 end
 
+---TargetFile:prints the path of the current target file
 ---@return TargetFile
 function TargetFile:print_path()
   print(self.file_path)
@@ -49,14 +53,15 @@ function TargetFile:print_path()
   return self
 end
 
+---TargetFile:resets the path to the current buffer path
 ---@return TargetFile
 function TargetFile:reset_path()
   self:path_set("")
-  print(self.file_path)
 
   return self
 end
 
+---TargetFile:sets the path to a custom file path
 ---@return TargetFile
 function TargetFile:custom_path()
   self:file_path_reset(vim.fn.input("Absolute target file path > "))
@@ -64,6 +69,9 @@ function TargetFile:custom_path()
   return self
 end
 
+---TargetFile:expands the placeholder strings provided to the respective values
+---@param unexpanded_cmd string
+---@return string
 function TargetFile:expand_to_cmd(unexpanded_cmd)
   local expanded_cmd = string.gsub(unexpanded_cmd, "%%fp", self.file_path)
   expanded_cmd = string.gsub(expanded_cmd, "%%fen",
@@ -79,6 +87,8 @@ function TargetFile:expand_to_cmd(unexpanded_cmd)
   return expanded_cmd
 end
 
+---TargetFile:provides the vim command to open/split windows
+---@return table|string
 function TargetFile:window_open_cmd()
   if self.config.window_location <= 4 then
     local open_cmd = 'new | wincmd ' ..
@@ -95,7 +105,8 @@ function TargetFile:window_open_cmd()
   end
 end
 
--- Generates command to preview the window
+---TargetFile:Generates command to preview the window
+---@return string
 function TargetFile:window_preview_cmd()
   local window_cmds = self:window_open_cmd()
   if self.config.window_location <= 4 then
@@ -105,26 +116,30 @@ function TargetFile:window_preview_cmd()
   end
 end
 
--- Shows a brief preview of window
+---TargetFile:shows a brief preview of window
+---@return TargetFile
 function TargetFile:window_preview()
   vim.cmd(self:window_preview_cmd())
   return self
 end
 
--- Resets to default window size and location
+---Resets to default window size and location
+---@return TargetFile
 function TargetFile:window_reset()
   self.config.window_size = 60
   self.config.window_location = 2
   return self
 end
 
--- Displays windows size
+---TargetFile:Displays windows size
+---@return TargetFile
 function TargetFile:print_window_size()
   print(self.config.window_size)
   return self
 end
 
--- Resets default window size
+---TargetFile:Resets default window size
+---@return TargetFile
 function TargetFile:window_size_reset()
   self.config.window_size = 20
   if (self.config.window_location % 2 == 0) then
@@ -133,20 +148,22 @@ function TargetFile:window_size_reset()
   return self
 end
 
--- Sets a custom window size from uesr
+---TargetFile:Sets a custom window size from uesr
+---@return TargetFile
 function TargetFile:window_size_custom()
   self.config.window_size = tonumber(vim.fn.input("Window size > "))
   return self
 end
 
--- Displays windows location
+---TargetFile:displays windows location
+---@return TargetFile
 function TargetFile:print_window_location()
   print(locations[self.config.window_location])
   return self
 end
 
---
--- Resets default window location
+---TargetFile:resets default window location
+---@return TargetFile
 function TargetFile:window_location_reset()
   local old_location = self.config.window_location
   self.config.window_location = 2
@@ -156,13 +173,16 @@ function TargetFile:window_location_reset()
   return self
 end
 
--- Sets a custom window location from user
+---TargetFile:sets a custom window location from user
+---@return TargetFile
 function TargetFile:window_location_custom()
   window_location_reset(vim.fn.input("\n1: North\n2: East\n3: South\n4: West\n5: Float\nWindow location > "))
   vim.cmd(window_preview_cmd())
   return self
 end
 
+---TargetFile:executes the target file
+---@return TargetFile
 function TargetFile:execute()
   local filetype = self.config.supported_languages[U.file_ext(self.file_path)]
   if filetype == nil then
@@ -178,6 +198,8 @@ function TargetFile:execute()
   return self
 end
 
+---TargetFile:compiles the target file
+---@return TargetFile
 function TargetFile:compile()
   local filetype = self.config.supported_languages[U.file_ext(self.file_path)]
   if filetype == nil then
@@ -193,6 +215,8 @@ function TargetFile:compile()
   return self
 end
 
+---TargetFile:compiles and executes the current target file
+---@return TargetFile
 function TargetFile:compile_execute()
   local window_cmds = self:window_open_cmd()
   local filetype = self.config.supported_languages[U.file_ext(self.file_path)]
@@ -221,6 +245,8 @@ function TargetFile:compile_execute()
   return self
 end
 
+---TargetFile:runs the debug command on the current file
+---@return TargetFile
 function TargetFile:debug()
   local filetype = self.config.supported_languages[self:file_ext(self.file_path)]
   if filetype == nil then
@@ -268,78 +294,30 @@ end
 -- %fben: full file path without file extension with build directory
 -- %fdb: full file path without file name or extension with build directory
 -- %fn: file name (without extension)
-local supported_languages = {
-  ['.cpp'] = {
-    name = 'C++',
-    ext = '.cpp',
-    compile_cmd = 'g++ -g -Wshadow -Wall -Wextra --std=c++17 %fp -o %fben',
-    execute_cmd = '%fben',
-    debug_cmd = nil,
-    debut_window_cmd = nil,
-    -- debug_cmd = 'gdb -tui %fben',
-    -- debut_window_cmd = 'tabe | set nowrap | startinsert | term ',
-  },
-  ['.c'] = {
-    name = 'C',
-    ext = '.c',
-    compile_cmd = 'gcc -g -Wshadow -Wall -Wextra -std=c99 %fp -o %fben',
-    execute_cmd = '%fben',
-    debug_cmd = nil,
-    debut_window_cmd = nil,
-    -- debug_cmd = 'gdb -tui %fben',
-    -- debut_window_cmd = 'tabe | set nowrap | startinsert | term ',
-  },
-  ['.rs'] = {
-    name = 'Rust',
-    ext = '.rs',
-    compile_cmd = 'rustc %fp',
-    execute_cmd = '%fen',
-    debug_cmd = nil,
-    debut_window_cmd = nil,
-    -- debug_cmd = 'gdb -tui %fben',
-    -- debut_window_cmd = 'tabe | set nowrap | startinsert | term ',
-  },
-  ['.java'] = {
-    name = 'Java',
-    ext = '.java',
-    compile_cmd = 'javac -d %fdb %fp',
-    execute_cmd = 'java -cp %fdb %fp',
-    debug_cmd = nil,
-    debut_window_cmd = nil,
-  },
-  ['.js'] = {
-    name = 'Javascript',
-    ext = '.js',
-    compile_cmd = nil,
-    execute_cmd = 'node %fp',
-    debug_cmd = nil,
-    debut_window_cmd = nil,
-  },
-}
 
--- Keymappings
-vim.keymap.set('n', targetfile_leader .. 'ps', vim.cmd.TargetFilePath, { desc = 'target file [P]ath [S]how' })
-vim.keymap.set('n', targetfile_leader .. 'pr', vim.cmd.TargetFilePathReset, { desc = 'target file [P]ath [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "pc", vim.cmd.TargetFilePathCustom, { desc = 'target file [P]ath [C]ustom' })
-vim.keymap.set('n', targetfile_leader .. "e", vim.cmd.TargetFileExecute, { desc = '[E]xecute target file' })
-vim.keymap.set('n', targetfile_leader .. "c", vim.cmd.TargetFileCompile, { desc = '[C]ompile target file' })
-vim.keymap.set('n', targetfile_leader .. "<space>", vim.cmd.TargetFileCompileExecute,
-  { desc = 'compiles & executes target file' })
-vim.keymap.set('n', targetfile_leader .. "d", vim.cmd.TargetFileDebug, { desc = '[D]ebugs target file' })
-vim.keymap.set('n', targetfile_leader .. "ws", vim.cmd.TargetFileWindow, { desc = 'target file [W]indow preview [S]how' })
-vim.keymap.set('n', targetfile_leader .. "wr", vim.cmd.TargetFileWindowReset, { desc = 'target file [W]indow [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "ss", vim.cmd.TargetFileWindowSize,
-  { desc = 'target file window [S]ize [S]how' })
-vim.keymap.set('n', targetfile_leader .. "sr", vim.cmd.TargetFileWindowSizeReset,
-  { desc = 'target file window [S]ize [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "sc", vim.cmd.TargetFileWindowSizeCustom,
-  { desc = 'target file window [S]ize [C]ustom' })
-vim.keymap.set('n', targetfile_leader .. "ls", vim.cmd.TargetFileWindowLocation,
-  { desc = 'target file window [L]ocation [S]how' })
-vim.keymap.set('n', targetfile_leader .. "lr", vim.cmd.TargetFileWindowLocationReset,
-  { desc = 'target file window [L]ocation [R]eset' })
-vim.keymap.set('n', targetfile_leader .. "lc", vim.cmd.TargetFileWindowLocationCustom,
-  { desc = 'target file window [L]ocation [C]ustom' })
+-- -- Keymappings
+-- vim.keymap.set('n', targetfile_leader .. 'ps', vim.cmd.TargetFilePath, { desc = 'target file [P]ath [S]how' })
+-- vim.keymap.set('n', targetfile_leader .. 'pr', vim.cmd.TargetFilePathReset, { desc = 'target file [P]ath [R]eset' })
+-- vim.keymap.set('n', targetfile_leader .. "pc", vim.cmd.TargetFilePathCustom, { desc = 'target file [P]ath [C]ustom' })
+-- vim.keymap.set('n', targetfile_leader .. "e", vim.cmd.TargetFileExecute, { desc = '[E]xecute target file' })
+-- vim.keymap.set('n', targetfile_leader .. "c", vim.cmd.TargetFileCompile, { desc = '[C]ompile target file' })
+-- vim.keymap.set('n', targetfile_leader .. "<space>", vim.cmd.TargetFileCompileExecute,
+--   { desc = 'compiles & executes target file' })
+-- vim.keymap.set('n', targetfile_leader .. "d", vim.cmd.TargetFileDebug, { desc = '[D]ebugs target file' })
+-- vim.keymap.set('n', targetfile_leader .. "ws", vim.cmd.TargetFileWindow, { desc = 'target file [W]indow preview [S]how' })
+-- vim.keymap.set('n', targetfile_leader .. "wr", vim.cmd.TargetFileWindowReset, { desc = 'target file [W]indow [R]eset' })
+-- vim.keymap.set('n', targetfile_leader .. "ss", vim.cmd.TargetFileWindowSize,
+--   { desc = 'target file window [S]ize [S]how' })
+-- vim.keymap.set('n', targetfile_leader .. "sr", vim.cmd.TargetFileWindowSizeReset,
+--   { desc = 'target file window [S]ize [R]eset' })
+-- vim.keymap.set('n', targetfile_leader .. "sc", vim.cmd.TargetFileWindowSizeCustom,
+--   { desc = 'target file window [S]ize [C]ustom' })
+-- vim.keymap.set('n', targetfile_leader .. "ls", vim.cmd.TargetFileWindowLocation,
+--   { desc = 'target file window [L]ocation [S]how' })
+-- vim.keymap.set('n', targetfile_leader .. "lr", vim.cmd.TargetFileWindowLocationReset,
+--   { desc = 'target file window [L]ocation [R]eset' })
+-- vim.keymap.set('n', targetfile_leader .. "lc", vim.cmd.TargetFileWindowLocationCustom,
+--   { desc = 'target file window [L]ocation [C]ustom' })
 
 -- vim.keymap.set('i', '<C-e>', '<C-o>A', { desc = 'Puts cursor at the end of the line without exiting insert mode' })
 -- vim.keymap.set('n', '<leader>e', function() vim.cmd [[NERDTreeToggle]] end, { desc = 'Open file explorer (NERDTree)' })
@@ -555,4 +533,5 @@ vim.keymap.set('n', targetfile_leader .. "lc", vim.cmd.TargetFileWindowLocationC
 --   expanded_cmd = string.gsub(expanded_cmd, "%%fn", file_name(target_file_path))
 --   return expanded_cmd
 -- end
+
 return TargetFile
