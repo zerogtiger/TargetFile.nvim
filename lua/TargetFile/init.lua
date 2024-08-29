@@ -102,9 +102,9 @@ vim.api.nvim_create_user_command("TFCompileExecute", function()
   M.compile_execute()
 end, {})
 
-vim.api.nvim_create_user_command("TFDebug", function()
-  M.debug()
-end, {})
+-- vim.api.nvim_create_user_command("TFDebug", function()
+--   M.debug()
+-- end, {})
 
 -- Window
 -- Shows a brief preview of window
@@ -148,14 +148,14 @@ vim.api.nvim_create_user_command("TFCustomWindowLocation", function()
 end, {})
 
 -- Keymappings
-vim.keymap.set('n', tf.config.leader .. 'sp', vim.cmd.TFPath, { desc = 'TargetFile [C]how [P]ath' })
+vim.keymap.set('n', tf.config.leader .. 'sp', vim.cmd.TFPath, { desc = 'TargetFile [S]how [P]ath' })
 vim.keymap.set('n', tf.config.leader .. 'rp', vim.cmd.TFResetPath, { desc = 'TargetFile [R]est [P]ath' })
 vim.keymap.set('n', tf.config.leader .. "mp", vim.cmd.TFCustomPath, { desc = 'TargetFile set [M]odify [P]ath' })
 vim.keymap.set('n', tf.config.leader .. "e", vim.cmd.TFExecute, { desc = 'TargetFile [E]xecute' })
 vim.keymap.set('n', tf.config.leader .. "c", vim.cmd.TFCompile, { desc = 'TargetFile [[C]ompile' })
 vim.keymap.set('n', tf.config.leader .. "<space>", vim.cmd.TFCompileExecute,
   { desc = 'TargetFile compile then execute' })
-vim.keymap.set('n', tf.config.leader .. "d", vim.cmd.TFDebug, { desc = 'TargetFile [D]ebugs' })
+-- vim.keymap.set('n', tf.config.leader .. "d", vim.cmd.TFDebug, { desc = 'TargetFile [D]ebugs' })
 vim.keymap.set('n', tf.config.leader .. "sw", vim.cmd.TFPreviewWindow, { desc = 'TargetFile [S]how [W]indow preview ' })
 vim.keymap.set('n', tf.config.leader .. "rw", vim.cmd.TFResetWindow, { desc = 'TargetFile [R]eset [W]indow' })
 vim.keymap.set('n', tf.config.leader .. "ss", vim.cmd.TFWindowSize, { desc = 'TargetFile [S]how window [S]ize' })
